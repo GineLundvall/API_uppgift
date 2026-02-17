@@ -4,12 +4,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-app.use(express.json()); // Alla request/response i JSON
+app.use(express.json()); 
 
-// 🔐 JWT-hemlighet
 const SECRET = "superhemlignyckel";
 
-// 🗄️ MySQL-koppling
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -19,9 +17,6 @@ const db = mysql.createConnection({
 
 db.connect();
 
-// =======================
-// 🔐 MIDDLEWARE – TOKEN
-// =======================
 function authenticateToken(req, res, next) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -39,9 +34,6 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// =======================
-// 📄 API-DOKUMENTATION
-// =======================
 app.get("/", (req, res) => {
     res.json({
         message: "API-dokumentation",
@@ -55,9 +47,6 @@ app.get("/", (req, res) => {
     });
 });
 
-// =======================
-// 🔑 LOGIN (JWT)
-// =======================
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
@@ -88,9 +77,6 @@ app.post("/login", (req, res) => {
     );
 });
 
-// =======================
-// 👤 GET ALL USERS
-// =======================
 app.get("/users", authenticateToken, (req, res) => {
     db.query(
         "SELECT id, username, name FROM users",
@@ -100,9 +86,6 @@ app.get("/users", authenticateToken, (req, res) => {
     );
 });
 
-// =======================
-// 👤 GET USER BY ID
-// =======================
 app.get("/users/:id", authenticateToken, (req, res) => {
     db.query(
         "SELECT id, username, name FROM users WHERE id = ?",
@@ -116,9 +99,6 @@ app.get("/users/:id", authenticateToken, (req, res) => {
     );
 });
 
-// =======================
-// ➕ CREATE USER
-// =======================
 app.post("/users", authenticateToken, async (req, res) => {
     const { username, password, name } = req.body;
     const hash = await bcrypt.hash(password, 10);
@@ -136,9 +116,6 @@ app.post("/users", authenticateToken, async (req, res) => {
     );
 });
 
-// =======================
-// ✏️ UPDATE USER
-// =======================
 app.put("/users/:id", authenticateToken, (req, res) => {
     const { name } = req.body;
 
@@ -154,7 +131,6 @@ app.put("/users/:id", authenticateToken, (req, res) => {
     );
 });
 
-// =======================
 app.listen(3000, () => {
     console.log("API körs på http://localhost:3000");
 });
